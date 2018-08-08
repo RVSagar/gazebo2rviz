@@ -42,7 +42,10 @@ def on_model_states_msg(model_states_msg):
 
   for (model_idx, modelinstance_name) in enumerate(model_states_msg.name):
     #print(model_idx, modelinstance_name)
+    rospy.loginfo("Parsing the model ")
+
     model_name = pysdf.name2modelname(modelinstance_name)
+    rospy.loginfo(model_name)
     #print('model_name:', model_name)
     if not model_name in model_cache:
       sdf = pysdf.SDF(model=model_name)

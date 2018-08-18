@@ -33,8 +33,8 @@ def on_model_states_msg(model_states_msg):
 
     for (model_idx, modelinstance_name) in enumerate(model_states_msg.name):
 
-        model_name = pysdf.name2modelname(modelinstance_name)
-        # print(model_name)
+#        model_name = pysdf.name2modelname(modelinstance_name)
+
         if not modelinstance_name in model_cache:
             # Add new collision object
             model_cache[modelinstance_name] = sdf2moveit.add_new_collision_object(model_name, modelinstance_name)

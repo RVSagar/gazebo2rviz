@@ -29,16 +29,19 @@ def on_model_states_msg(model_states_msg):
         return
 
     lastUpdateTime = rospy.get_rostime()
+    # import pdb; pdb.set_trace()
 
     for (model_idx, modelinstance_name) in enumerate(model_states_msg.name):
+
         model_name = pysdf.name2modelname(modelinstance_name)
- 
+        # print(model_name)
         if not modelinstance_name in model_cache:
             # Add new collision object
             model_cache[modelinstance_name] = sdf2moveit.add_new_collision_object(model_name, modelinstance_name)
- 
+
         # Move existing object
         model = model_cache[modelinstance_name]
+        # import pdb; pdb.set_trace()
         sdf2moveit.update_collision_object_with_pose(model, modelinstance_name, model_states_msg.pose[model_idx])
 
     for modelinstance_name in list(model_cache):
@@ -54,7 +57,7 @@ def main():
     args = parser.parse_args(rospy.myargv()[1:])
 
     rospy.init_node('gazebo2moveit')
-    
+
     global sdf2moveit
     sdf2moveit = Sdf2moveit()
 

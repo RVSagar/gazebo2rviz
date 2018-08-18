@@ -101,6 +101,7 @@ class Sdf2moveit(object):
 
     def link_to_collision_object(self, link, full_linkname):
         mesh_path = None
+        # import pdb; pdb.set_trace()
         supported_geometry_types = ['mesh', 'cylinder', 'sphere', 'box']
         linkparts = getattr(link, 'collisions')
         if self.is_ignored(link.parent_model):
@@ -176,7 +177,7 @@ class Sdf2moveit(object):
     def update_collision_object(self, link, full_linkname, **kwargs):
         if 'name' in kwargs:
             modelinstance_name = kwargs['name']
-    
+
         full_linkname_mod = modelinstance_name + "::" + full_linkname.split("::")[1]
         link_root = pysdf.sdf2tfname(full_linkname_mod)
         self.collision_objects_updated[link_root] = CollisionObject()
@@ -219,7 +220,7 @@ class Sdf2moveit(object):
                     planning_scene_msg.world.collision_objects.append(collision_object)
                     planning_scene_msg.world.collision_objects[-1].header.frame_id = 'world'
             self.planning_scene_pub.publish(planning_scene_msg)
-            rospy.loginfo('Loaded model: %s' % modelinstance_name)
+            rospy.loginfo('Loaded collision model: %s' % modelinstance_name)
             return model
         else:
             rospy.logerr('Unable to load model: %s' % model_name)
@@ -238,6 +239,7 @@ class Sdf2moveit(object):
             self.planning_scene_pub.publish(planning_scene_msg)
 
     def update_collision_object_with_pose(self, model, modelinstance_name, pose):
+        # import pdb; pdb.set_trace()
         if model:
             model.for_all_links(self.update_collision_object, name=modelinstance_name, pose=pose)
         else:
@@ -245,7 +247,7 @@ class Sdf2moveit(object):
 
         response = self.get_planning_scene(self.request)
         current_scene_objects = [object.id for object in response.scene.world.collision_objects]
- 
+
         planning_scene_msg = PlanningScene()
         planning_scene_msg.is_diff = True
         for (collision_object_root, collision_object) in self.collision_objects_updated.iteritems():

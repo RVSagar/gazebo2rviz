@@ -47,7 +47,7 @@ def on_model_states_msg(model_states_msg):
 
     model_name = modelinstance_name #pysdf.name2modelname(modelinstance_name)
 
-    rospy.loginfo(model_name)
+    # rospy.loginfo(model_name)
     #print('model_name:', model_name)
     if not model_name in model_cache:
       sdf = pysdf.SDF(model=model_name)

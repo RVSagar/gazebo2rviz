@@ -23,6 +23,7 @@ from tf.transformations import *
 
 import pysdf
 from gazebo2rviz import *
+import pdb
 
 class Sdf2moveit(object):
     def __init__(self):
@@ -32,8 +33,8 @@ class Sdf2moveit(object):
 
 
         self.planning_scene_pub = rospy.Publisher('/planning_scene', PlanningScene, queue_size=10)
-        while self.planning_scene_pub.get_num_connections() < 1:
-            rospy.sleep(0.1)
+        # while self.planning_scene_pub.get_num_connections() < 1:
+        #     rospy.sleep(0.1)
 
         timeout = rospy.get_param('~timeout', 0)
         if timeout <= 0:
@@ -123,6 +124,7 @@ class Sdf2moveit(object):
                     if os.path.isfile(resource):
                         mesh_path = resource
                         break
+                # pdb.set_trace()
                 if mesh_path is not None:
                     link_pose_stamped = PoseStamped()
                     link_pose_stamped.pose = pysdf.homogeneous2pose_msg(linkpart.pose)
@@ -151,6 +153,7 @@ class Sdf2moveit(object):
         return collision_object
 
     def convert_to_collision_object(self, link, full_linkname, **kwargs):
+        # rospy.loginfo("Converting to collision object " + full_linkname)
         if 'name' in kwargs:
             modelinstance_name = kwargs['name']
 
@@ -164,6 +167,7 @@ class Sdf2moveit(object):
             self.collision_objects[link_root] = CollisionObject()
             self.collision_objects[link_root].id = link_root
             self.collision_objects[link_root].operation = CollisionObject.ADD
+        # rospy.loginfo("Converting to collision object " + full_linkname)
         self.append_to_collision_object(self.collision_objects[link_root], collision_object)
 
     def append_to_collision_object(self, sink_collision_object, source_collision_object):
@@ -178,6 +182,7 @@ class Sdf2moveit(object):
         if 'name' in kwargs:
             modelinstance_name = kwargs['name']
 
+        # pdb.set_trace()
         full_linkname_mod = modelinstance_name + "::" + full_linkname.split("::")[1]
         link_root = pysdf.sdf2tfname(full_linkname_mod)
         self.collision_objects_updated[link_root] = CollisionObject()
@@ -206,19 +211,23 @@ class Sdf2moveit(object):
         sdf = pysdf.SDF(model=model_name)
         num_collision_objects = len(self.collision_objects)
         model = sdf.world.models[0] if len(sdf.world.models) >= 1 else None
+        rospy.loginfo("Adding new collision object " + model_name)
         if model:
+
             model.for_all_links(self.convert_to_collision_object, name=modelinstance_name)
             if len(self.collision_objects) == num_collision_objects:
                 rospy.logerr('Unable to load model: %s' % model_name)
                 return None
             planning_scene_msg = PlanningScene()
             planning_scene_msg.is_diff = True
+
             for (collision_object_root, collision_object) in self.collision_objects.iteritems():
                 if collision_object_root in self.ignored_submodels:
                     pass
                 else:
                     planning_scene_msg.world.collision_objects.append(collision_object)
                     planning_scene_msg.world.collision_objects[-1].header.frame_id = 'world'
+            # pdb.set_trace()
             self.planning_scene_pub.publish(planning_scene_msg)
             rospy.loginfo('Loaded collision model: %s' % modelinstance_name)
             return model

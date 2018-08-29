@@ -1,6 +1,6 @@
 <launch>
   <arg name="marker_frequency" default="2" />
-  <arg name="marker_collision" default="false" />
+  <arg name="marker_collision" default="true" />
 
   <include file="$(find gazebo2rviz)/launch/gazebo2tf.launch" />
   <include file="$(find gazebo2rviz)/launch/gazebo2marker.launch">
